@@ -1,6 +1,8 @@
 package com.zafar;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,7 +43,8 @@ public class MainController {
 	}
 	
 	@RequestMapping(value = "/ack/{uuid}", method = RequestMethod.GET)
-	public void ack(ModelMap model, @PathVariable String uuid){
+	public ResponseEntity<String> ack(ModelMap model, @PathVariable String uuid){
 		queue.processAck(uuid);
+		return new ResponseEntity<String>(HttpStatus.OK);
 	}
 }
