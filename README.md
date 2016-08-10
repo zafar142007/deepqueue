@@ -16,4 +16,4 @@ There are 3 functions that it can serve:
   This will write to the queue in a FIFO fashion the payload and return a UUID.    
 3. Accept Acknowledgement:  
   http://{HOST}:{PORT}/deepqueue/ack/{uuid}  
-  This will expel the relavant packet if the acknowledgement is found to be within the expiry time limit of the packet's read time, otherwise this packet will be reinitiated to the head of the queue. 
+  This will expel the relavant packet if the acknowledgement is found to be within the expiry time limit of the packet's read time, otherwise this packet will be reinitiated to the head of the queue. This method will always return a 200 OK.
