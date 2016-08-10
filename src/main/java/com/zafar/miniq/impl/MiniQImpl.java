@@ -1,38 +1,67 @@
 package com.zafar.miniq.impl;
 
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.zafar.miniq.MiniQ;
+import com.zafar.miniq.WritablePacket;
 
 @Service
-public class MiniQImpl<A> extends MiniQ<A>{
+public class MiniQImpl extends MiniQ{
+	private static Logger logger = LoggerFactory.getLogger(MiniQImpl.class);
 
 	@Override
-	public A read() {
-		A packet=queue.pollFirst();
-		if(packet!=null)
-			backlog.addToBacklog(System.currentTimeMillis(), packet);
-		return packet;
+	public WritablePacket read() {
+		WritablePacket packet= queue.pollFirst();
+		if(packet!=null){
+			backlog.addToBacklog(packet);
+			return (WritablePacket) packet;
+		}
+		else
+			return null;
+		
 	}
 
 	@Override
-	public String write(A packet) {
-		if(queue.offerFirst(packet))
-			return generateRandomString();
+	public String write(String packet) {
+		String uuid=generateUUID();
+		if(queue.offer( new WritablePacket(packet, uuid)))
+			return uuid;
 		else
 			return null;	
 	}
 
 	@Override
-	public A readWithBlocking() throws InterruptedException {
-		A packet=queue.take();
-		if(packet!=null)
-			backlog.addToBacklog(System.currentTimeMillis(), packet);
-		return packet;
+	public WritablePacket readWithBlocking() throws InterruptedException {
+		WritablePacket packet= queue.take();
+		if(packet!=null){
+			backlog.addToBacklog(packet);
+			return packet;
+		}
+		else return null;
 	}
 
-	public void delete(String uuid) {
-		backlog.deleteFromBacklog(uuid);
+	public void processAck(String uuid) {
+		long c=System.currentTimeMillis();
+		logger.debug("time difference {}",c-getTimeStampFromId(uuid));
+		if((c-getTimeStampFromId(uuid))<=(timeoutInSeconds.getTime()*1000))
+			backlog.deleteFromBacklog(uuid);
+		else
+			logger.debug("late ack");
+	}
+
+	@Override
+	public void pushToHead(Map<Long, WritablePacket> m) {
+		for(WritablePacket packet:m.values())
+			try {
+				packet.setUuid(MiniQ.generateUUID());
+				queue.putFirst(packet);
+			} catch (InterruptedException e) {
+				logger.debug("Exception",e);
+			}
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.zafar.miniq;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -12,16 +13,16 @@ import org.springframework.beans.factory.annotation.Value;
 import com.zafar.miniq.impl.BacklogImpl;
 import com.zafar.miniq.impl.CleanupThreadImpl;
 
-public abstract class MiniQ<A> {
+public abstract class MiniQ {
 	
-	protected LinkedBlockingDeque<A> queue= new LinkedBlockingDeque<A>();//has unread messages
+	protected LinkedBlockingDeque<WritablePacket> queue= new LinkedBlockingDeque<WritablePacket>();//has unread messages
 	
 	public static final String ID_SEPARATOR="_";
 	
 	/**
 	 * 	has those messages which are yet to be acknowledged
 	 */
-	protected Backlog<A> backlog=new BacklogImpl<A>();
+	protected BacklogImpl backlog=new BacklogImpl();
 
 	private ScheduledThreadPoolExecutor cleaner = new ScheduledThreadPoolExecutor(2);
 	public static ImmutableTime timeoutInSeconds;
@@ -30,11 +31,11 @@ public abstract class MiniQ<A> {
 	@Value("${expiry.time.s}")
 	private int timeout;
 	
-	private CleanupThread<A> cleanerThread;
+	private CleanupThread cleanerThread;
 	
 	@PostConstruct
 	public void init(){
-		cleanerThread=new CleanupThreadImpl<A>(backlog, this);
+		cleanerThread=new CleanupThreadImpl(backlog, this);
 		this.timeoutInSeconds=new ImmutableTime(timeout);
 		cleaner.scheduleAtFixedRate(cleanerThread, 0, timeout, TimeUnit.SECONDS);
 	}
@@ -44,7 +45,7 @@ public abstract class MiniQ<A> {
 	 * If no messages are there, return null
 	 * @return A
 	 */
-	public abstract A read();
+	public abstract WritablePacket read();
 	
 	/**
 	 * take the message out from the queue,
@@ -53,20 +54,22 @@ public abstract class MiniQ<A> {
 	 * @return A
 	 * @throws InterruptedException 
 	 */
-	public abstract A readWithBlocking() throws InterruptedException;
+	public abstract WritablePacket readWithBlocking() throws InterruptedException;
 	/**
-	 * calculate a UUID to give back to the writer, and push it into the queue from the front 
+	 * calculate a UUID to give back to the writer, and push it into the queue from the front with the UUID 
 	 * @param packet
 	 * @return
 	 */
-	public abstract String write(A packet);
+	public abstract String write(String packet);
 	/**
 	 * delete from backlog this uuid as it has been now acknowledged by the reader
 	 * @param uuid
 	 */
-	public abstract void delete(String uuid);
+	public abstract void processAck(String uuid);
 	
-	public static final String generateRandomString(){
+	public abstract void pushToHead(Map<Long, WritablePacket> m);
+	
+	public static final String generateUUID(){
 		UUID u=UUID.randomUUID();
 		long id=u.getLeastSignificantBits();
 		return System.currentTimeMillis()+ID_SEPARATOR+Long.toString(id);

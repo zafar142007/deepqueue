@@ -1,5 +1,7 @@
 package com.zafar.miniq;
 
+import com.zafar.miniq.impl.BacklogImpl;
+
 
 /**
  * This will be scheduled for periodic runs with the period of timeout 
@@ -7,12 +9,12 @@ package com.zafar.miniq;
  *
  * @param <A>
  */
-public abstract class CleanupThread<A> implements Runnable{
+public abstract class CleanupThread implements Runnable{
 	
-	protected MiniQ<A> queue;
-	protected Backlog<A> backlog;
+	protected MiniQ queue;
+	protected BacklogImpl backlog;
 	
-	public CleanupThread(Backlog<A> backlog, MiniQ<A> miniQ) {
+	public CleanupThread(BacklogImpl backlog, MiniQ miniQ) {
 		this.backlog=backlog;
 		queue=miniQ;
 	}
