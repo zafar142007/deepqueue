@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.zafar.miniq.WritablePacket;
-import com.zafar.miniq.impl.MiniQImpl;
+import com.zafar.deepq.WritablePacket;
+import com.zafar.deepq.impl.DeepQImpl;
 
 @Controller
 public class MainController {
 
 	@Autowired
-	private MiniQImpl queue;
+	private DeepQImpl queue;
 	
 	@ResponseBody
 	@RequestMapping(value = "/read", method = RequestMethod.GET)

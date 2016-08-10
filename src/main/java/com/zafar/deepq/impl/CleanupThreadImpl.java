@@ -1,19 +1,19 @@
-package com.zafar.miniq.impl;
+package com.zafar.deepq.impl;
 
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zafar.miniq.CleanupThread;
-import com.zafar.miniq.MiniQ;
-import com.zafar.miniq.WritablePacket;
+import com.zafar.deepq.CleanupThread;
+import com.zafar.deepq.DeepQ;
+import com.zafar.deepq.WritablePacket;
 
 public class CleanupThreadImpl extends CleanupThread{
 
 	private static Logger logger = LoggerFactory.getLogger(CleanupThreadImpl.class);
 
-	public CleanupThreadImpl(BacklogImpl backlog, MiniQ miniQ) {
+	public CleanupThreadImpl(BacklogImpl backlog, DeepQ miniQ) {
 		super(backlog, miniQ);
 	}
 
@@ -23,7 +23,7 @@ public class CleanupThreadImpl extends CleanupThread{
 		long currentTime=System.currentTimeMillis();
 		long firstBucketOfExpiredPackets=BacklogImpl.calculateBucket(currentTime-(queue.timeoutInSeconds.getTime()*1000)-1000);
 		//delete all packets from this bucket onwards till EPOCH
-		for(long bucket=firstBucketOfExpiredPackets;bucket>MiniQImpl.EPOCH_TIME;bucket-=1000){
+		for(long bucket=firstBucketOfExpiredPackets;bucket>DeepQImpl.EPOCH_TIME;bucket-=1000){
 			logger.debug("cleaning bucket {}",bucket);
 			Map<Long, WritablePacket> m=backlog.removeFromBacklog(bucket);
 			if(m!=null)

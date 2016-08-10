@@ -1,4 +1,4 @@
-package com.zafar.miniq;
+package com.zafar.deepq;
 
 import java.io.Serializable;
 

@@ -1,4 +1,4 @@
-package com.zafar.miniq.impl;
+package com.zafar.deepq.impl;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -7,9 +7,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zafar.miniq.Backlog;
-import com.zafar.miniq.MiniQ;
-import com.zafar.miniq.WritablePacket;
+import com.zafar.deepq.Backlog;
+import com.zafar.deepq.DeepQ;
+import com.zafar.deepq.WritablePacket;
 
 public class BacklogImpl extends Backlog{
 
@@ -19,7 +19,7 @@ public class BacklogImpl extends Backlog{
 	@Override
 	public void deleteFromBacklog(String messageId) {
 		logger.debug("deleting from backlog {}",messageId);
-		long timestamp=MiniQ.getTimeStampFromId(messageId);	
+		long timestamp=DeepQ.getTimeStampFromId(messageId);	
 		long bucket=calculateBucket(timestamp);
 		lock.writeLock().lock();
 		Map<Long, WritablePacket> packets=unacknowledgedPackets.get(bucket);
@@ -34,7 +34,7 @@ public class BacklogImpl extends Backlog{
 	@Override
 	public void addToBacklog(WritablePacket packet) {
 		logger.debug("adding to backlog packet {}",packet);
-		long timestamp=MiniQImpl.getTimeStampFromId(packet.getUuid());
+		long timestamp=DeepQImpl.getTimeStampFromId(packet.getUuid());
 		long bucket=calculateBucket(timestamp);
 		lock.writeLock().lock();
 		Map<Long, WritablePacket> packets=unacknowledgedPackets.get(bucket);

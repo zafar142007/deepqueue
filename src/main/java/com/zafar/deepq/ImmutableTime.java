@@ -1,4 +1,4 @@
-package com.zafar.miniq;
+package com.zafar.deepq;
 
 public final class ImmutableTime {
 	private static long time=0;

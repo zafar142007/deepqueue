@@ -1,4 +1,4 @@
-package com.zafar.miniq;
+package com.zafar.deepq;
 
 import java.util.Map;
 import java.util.UUID;
@@ -10,8 +10,8 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import com.zafar.miniq.impl.BacklogImpl;
-import com.zafar.miniq.impl.CleanupThreadImpl;
+import com.zafar.deepq.impl.BacklogImpl;
+import com.zafar.deepq.impl.CleanupThreadImpl;
 
 public abstract class DeepQ {
 	

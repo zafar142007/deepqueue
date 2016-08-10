@@ -1,4 +1,4 @@
-package com.zafar.miniq.impl;
+package com.zafar.deepq.impl;
 
 import java.util.Map;
 
@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.zafar.miniq.DeepQ;
-import com.zafar.miniq.WritablePacket;
+import com.zafar.deepq.DeepQ;
+import com.zafar.deepq.WritablePacket;
 
 @Service
 public class DeepQImpl extends DeepQ{

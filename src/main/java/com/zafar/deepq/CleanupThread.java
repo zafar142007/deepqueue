@@ -1,6 +1,6 @@
-package com.zafar.miniq;
+package com.zafar.deepq;
 
-import com.zafar.miniq.impl.BacklogImpl;
+import com.zafar.deepq.impl.BacklogImpl;
 
 
 /**
@@ -11,10 +11,10 @@ import com.zafar.miniq.impl.BacklogImpl;
  */
 public abstract class CleanupThread implements Runnable{
 	
-	protected MiniQ queue;
+	protected DeepQ queue;
 	protected BacklogImpl backlog;
 	
-	public CleanupThread(BacklogImpl backlog, MiniQ miniQ) {
+	public CleanupThread(BacklogImpl backlog, DeepQ miniQ) {
 		this.backlog=backlog;
 		queue=miniQ;
 	}
