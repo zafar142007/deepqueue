@@ -7,13 +7,13 @@ This is a web application. For building it, use maven, and deploy it in a J2EE c
 
 There are 3 functions that it can serve:  
 1. Read:  
-  http://<HOST>:<PORT>/deepqueue/read  
+  http://{HOST}:{PORT}/deepqueue/read  
   It will either return an empty response or a JSON with a payload and a UUID. This method will not wait.  
-  http://<HOST>:<PORT>/deepqueue/readWithBlocking  
+  http://{HOST}:{PORT}/deepqueue/readWithBlocking  
   This method will return a JSON with a payload and a UUID or wait until one becomes available.    
 2. Write:  
-  http://<HOST>:<PORT>/deepqueue/write/<payload>  
+  http://{HOST}:{PORT}/deepqueue/write/<payload>  
   This will write to the queue in a FIFO fashion the payload and return a UUID.    
 3. Accept Acknowledgement:  
-  http://<HOST>:<PORT>/deepqueue/ack/{uuid}  
+  http://{HOST}:{PORT}/deepqueue/ack/{uuid}  
   This will expel the relavant packet if the acknowledgement is found to be within the expiry time limit of the packet's read time, otherwise this packet will be reinitiated to the head of the queue. 
