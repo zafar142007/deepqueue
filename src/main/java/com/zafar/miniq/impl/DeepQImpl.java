@@ -6,12 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.zafar.miniq.MiniQ;
+import com.zafar.miniq.DeepQ;
 import com.zafar.miniq.WritablePacket;
 
 @Service
-public class MiniQImpl extends MiniQ{
-	private static Logger logger = LoggerFactory.getLogger(MiniQImpl.class);
+public class DeepQImpl extends DeepQ{
+	private static Logger logger = LoggerFactory.getLogger(DeepQImpl.class);
 
 	@Override
 	public WritablePacket read() {
@@ -57,7 +57,7 @@ public class MiniQImpl extends MiniQ{
 	public void pushToHead(Map<Long, WritablePacket> m) {
 		for(WritablePacket packet:m.values())
 			try {
-				packet.setUuid(MiniQ.generateUUID());
+				packet.setUuid(DeepQ.generateUUID());
 				queue.putFirst(packet);
 			} catch (InterruptedException e) {
 				logger.debug("Exception",e);

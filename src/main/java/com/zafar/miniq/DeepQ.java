@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.zafar.miniq.impl.BacklogImpl;
 import com.zafar.miniq.impl.CleanupThreadImpl;
 
-public abstract class MiniQ {
+public abstract class DeepQ {
 	
 	protected LinkedBlockingDeque<WritablePacket> queue= new LinkedBlockingDeque<WritablePacket>();//has unread messages
 	
