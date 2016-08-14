@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import rx.Observable;
 
 import com.zafar.deepq.UnacknowledgedPackets;
-import com.zafar.deepq.WritablePacket;
+import com.zafar.deepq.domain.WritablePacket;
 import com.zafar.executors.ExecutorUtil;
 
 @Service

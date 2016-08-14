@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.zafar.deepq.DeepQ;
-import com.zafar.deepq.WritablePacket;
+import com.zafar.deepq.domain.Response;
+import com.zafar.deepq.domain.WritablePacket;
 
 @Controller
 public class MainController {
@@ -26,19 +27,19 @@ public class MainController {
 	
 	@ResponseBody
 	@RequestMapping(value = "/read", method = RequestMethod.GET)
-	public DeferredResult<WritablePacket> read(ModelMap model) {
+	public DeferredResult<Response<WritablePacket>> read(ModelMap model) {
 		return queue.read();
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/readWithBlocking", method = RequestMethod.GET)
-	public DeferredResult<WritablePacket> readWithBlocking(ModelMap model){
+	public DeferredResult<Response<WritablePacket>> readWithBlocking(ModelMap model){
 		return queue.readWithBlocking();
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/write/{payload}", method = RequestMethod.GET)
-	public DeferredResult<WritablePacket> write(ModelMap model, @PathVariable String payload){
+	public DeferredResult<Response<WritablePacket>> write(ModelMap model, @PathVariable String payload){
 		logger.debug("Writing payload:{}",payload);
 		return queue.write(payload);
 	}

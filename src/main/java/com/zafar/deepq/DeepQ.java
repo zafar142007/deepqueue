@@ -8,6 +8,9 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import com.zafar.deepq.domain.Response;
+import com.zafar.deepq.domain.WritablePacket;
+
 public abstract class DeepQ {
 	
 	protected LinkedBlockingDeque<WritablePacket> queue= new LinkedBlockingDeque<WritablePacket>();//has unread messages
@@ -27,7 +30,7 @@ public abstract class DeepQ {
 	 * If no messages are there, return null
 	 * @return A
 	 */
-	public abstract DeferredResult<WritablePacket> read();
+	public abstract DeferredResult<Response<WritablePacket>> read();
 	
 	/**
 	 * take the message out from the queue,
@@ -36,13 +39,13 @@ public abstract class DeepQ {
 	 * @return A
 	 * @throws InterruptedException 
 	 */
-	public abstract DeferredResult<WritablePacket> readWithBlocking();
+	public abstract DeferredResult<Response<WritablePacket>> readWithBlocking();
 	/**
 	 * calculate a UUID to give back to the writer, and push it into the queue at the tail with the UUID 
 	 * @param packet
 	 * @return
 	 */
-	public abstract DeferredResult<WritablePacket> write(String packet);
+	public abstract DeferredResult<Response<WritablePacket>> write(String packet);
 	/**
 	 * delete from backlog this uuid as it has now been acknowledged by the reader
 	 * @param uuid

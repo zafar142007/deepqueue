@@ -13,7 +13,8 @@ import rx.Observable;
 
 import com.zafar.deepq.DeepQ;
 import com.zafar.deepq.UnacknowledgedPackets;
-import com.zafar.deepq.WritablePacket;
+import com.zafar.deepq.domain.Response;
+import com.zafar.deepq.domain.WritablePacket;
 import com.zafar.deepq.util.Constants;
 import com.zafar.deepq.util.Utilities;
 import com.zafar.executors.ExecutorUtil;
@@ -37,13 +38,13 @@ public class DeepQImpl extends DeepQ{
 	private ExecutorUtil executorUtil;
 	
 	@Override
-	public DeferredResult<WritablePacket> read() {
+	public DeferredResult<Response<WritablePacket>> read() {
 		Observable<Supplier<WritablePacket>> res=Observable.just(() -> {
 			logger.debug("polling the head of the queue");
 			return queue.pollFirst();
 		});
 		
-		DeferredResult<WritablePacket> result=util.emptyResponse();
+		DeferredResult<Response<WritablePacket>> result=util.emptyResponse();
 		Observable<Supplier<WritablePacket>> response=res.subscribeOn(executorUtil.getReadExecutors());
 		response.subscribe(
 				(packet) -> {
@@ -54,12 +55,12 @@ public class DeepQImpl extends DeepQ{
 						readTimestamps.put(payload.getUuid(), System.currentTimeMillis());
 						backlog.addToUnacknowldged(payload);
 						logger.debug("setting the result");
-						result.setResult(payload);
+						result.setResult(new Response<WritablePacket>(payload));
 					}else
-						result.setResult(new WritablePacket("", "",Constants.STATUS_EMPTY));
+						result.setResult(new Response<WritablePacket>(new WritablePacket("", ""),Constants.STATUS_EMPTY));
 				},
 				(exception) -> {
-					result.setErrorResult(new WritablePacket("","",Constants.STATUS_ERROR));
+					result.setErrorResult(new Response<WritablePacket>(new WritablePacket("",""),Constants.STATUS_ERROR));
 					logger.debug("Oops: {}",exception);
 				}
 		);
@@ -67,7 +68,7 @@ public class DeepQImpl extends DeepQ{
 	}
 
 	@Override
-	public DeferredResult<WritablePacket> write(String data) {
+	public DeferredResult<Response<WritablePacket>> write(String data) {
 		Observable<WritablePacket> transformed=Observable.just(data).flatMap(
 			(argument) ->  {
 				String uuid=Utilities.generateUUID();
@@ -83,15 +84,15 @@ public class DeepQImpl extends DeepQ{
 			}
 		);
 		
-		DeferredResult<WritablePacket> result=util.emptyResponseWithTimeout();
+		DeferredResult<Response<WritablePacket>> result=util.emptyResponseWithTimeout();
 		Observable<WritablePacket> response=transformed.subscribeOn(executorUtil.getWriteExecutors());
 		response.subscribe(
 			(output) -> {
 				logger.debug("got result {}", output);
-				result.setResult(output);
+				result.setResult(new Response<WritablePacket>(output));
 			},
 			(exception) -> {
-				result.setErrorResult(new WritablePacket("","",Constants.STATUS_ERROR));
+				result.setErrorResult(new Response<WritablePacket>(new WritablePacket("",""),Constants.STATUS_ERROR));
 				logger.error("Oops:{}",exception);					
 			}
 		);
@@ -99,7 +100,7 @@ public class DeepQImpl extends DeepQ{
 	}
 
 	@Override
-	public DeferredResult<WritablePacket> readWithBlocking(){
+	public DeferredResult<Response<WritablePacket>> readWithBlocking(){
 		Observable<Supplier<WritablePacket>> res=Observable.just(() -> {
 			try {
 				return queue.take();
@@ -108,7 +109,7 @@ public class DeepQImpl extends DeepQ{
 				throw new RuntimeException(e);
 			}
 		});
-		DeferredResult<WritablePacket> result=util.emptyResponseWithTimeout();
+		DeferredResult<Response<WritablePacket>> result=util.emptyResponseWithTimeout();
 		Observable<Supplier<WritablePacket>> response=res.subscribeOn(executorUtil.getReadExecutors());
 		response.subscribe(
 				(packet) -> {					
@@ -116,11 +117,11 @@ public class DeepQImpl extends DeepQ{
 					if(payload!=null){
 						readTimestamps.put(payload.getUuid(), System.currentTimeMillis());
 						backlog.addToUnacknowldged(payload);
-						result.setResult(payload);
+						result.setResult(new Response<WritablePacket>(payload));
 					}
 				},
 				(exception) -> {
-					result.setErrorResult(new WritablePacket("","",Constants.STATUS_ERROR));
+					result.setErrorResult(new Response<WritablePacket>(new WritablePacket("",""),Constants.STATUS_ERROR));
 					logger.debug("Oops: {}",exception);
 				}
 		);

@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.zafar.deepq.ImmutableTime;
-import com.zafar.deepq.WritablePacket;
+import com.zafar.deepq.domain.Response;
+import com.zafar.deepq.domain.WritablePacket;
 
 
 @Component
@@ -34,11 +35,13 @@ public class Utilities {
 	 * Return with a prefilled DeferredResult
 	 * @return
 	 */
-	public DeferredResult<WritablePacket> emptyResponseWithTimeout(){
-		DeferredResult<WritablePacket> result=new DeferredResult<WritablePacket>(timeout.getTimeInMs(),new WritablePacket("","",Constants.STATUS_TIMEOUT));
+	public DeferredResult<Response<WritablePacket>> emptyResponseWithTimeout(){
+		DeferredResult<Response<WritablePacket>> result=
+				new DeferredResult<Response<WritablePacket>>(timeout.getTimeInMs(),
+						new Response<WritablePacket>(new WritablePacket("",""),Constants.STATUS_TIMEOUT));
 		result.onCompletion(() -> {
 			//put something to do here in case of completion event
-			//such as kafka log
+			//such as kafka lognew Response<WritablePacket>
 			logger.debug("result received.");
 		});
 		result.onTimeout(() -> {
@@ -46,8 +49,8 @@ public class Utilities {
 		});
 		return result;
 	}
-	public DeferredResult<WritablePacket> emptyResponse(){
-		DeferredResult<WritablePacket> result=new DeferredResult<WritablePacket>();
+	public DeferredResult<Response<WritablePacket>> emptyResponse(){
+		DeferredResult<Response<WritablePacket>> result=new DeferredResult<Response<WritablePacket>>();
 		result.onCompletion(() -> {
 			//put something to do here in case of completion event
 			//such as kafka log
