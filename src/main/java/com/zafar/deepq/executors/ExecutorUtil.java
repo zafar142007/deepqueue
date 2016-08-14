@@ -1,4 +1,4 @@
-package com.zafar.executors;
+package com.zafar.deepq.executors;
 
 import rx.Scheduler;
 

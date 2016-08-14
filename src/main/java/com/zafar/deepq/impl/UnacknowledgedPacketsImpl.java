@@ -12,7 +12,7 @@ import rx.Observable;
 
 import com.zafar.deepq.UnacknowledgedPackets;
 import com.zafar.deepq.domain.WritablePacket;
-import com.zafar.executors.ExecutorUtil;
+import com.zafar.deepq.executors.ExecutorUtil;
 
 @Service
 public class UnacknowledgedPacketsImpl extends UnacknowledgedPackets{

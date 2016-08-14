@@ -1,4 +1,4 @@
-package com.zafar.executors.impl;
+package com.zafar.deepq.executors.impl;
 
 import java.util.concurrent.Executors;
 
@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
+import com.zafar.deepq.executors.ExecutorUtil;
 import com.zafar.deepq.util.DeepQueueThreadFactory;
-import com.zafar.executors.ExecutorUtil;
 
 @Service
 public class ExecutorUtilImpl implements ExecutorUtil{

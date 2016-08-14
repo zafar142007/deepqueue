@@ -15,9 +15,9 @@ import com.zafar.deepq.DeepQ;
 import com.zafar.deepq.UnacknowledgedPackets;
 import com.zafar.deepq.domain.Response;
 import com.zafar.deepq.domain.WritablePacket;
+import com.zafar.deepq.executors.ExecutorUtil;
 import com.zafar.deepq.util.Constants;
 import com.zafar.deepq.util.Utilities;
-import com.zafar.executors.ExecutorUtil;
 
 @Service
 public class DeepQImpl extends DeepQ{
