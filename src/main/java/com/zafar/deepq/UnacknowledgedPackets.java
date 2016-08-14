@@ -1,9 +1,6 @@
 package com.zafar.deepq;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.springframework.stereotype.Service;
 /**
  * 
  * Has those messages which are yet to be acknowledged	
@@ -11,20 +8,17 @@ import org.springframework.stereotype.Service;
  *
  */
 public abstract class UnacknowledgedPackets {
-	protected ConcurrentHashMap<Long, ConcurrentHashMap<Long,WritablePacket>> unacknowledgedPackets=new ConcurrentHashMap<Long, ConcurrentHashMap<Long,WritablePacket>>();
+	
+	protected ConcurrentHashMap<String ,WritablePacket> unacknowledgedPackets=new ConcurrentHashMap<String,WritablePacket>();
 
 	/**
-	 * extract timestamp from messageId, calculate the bucket in which it would fall into, and delete it from that bucket
+	 * delete the message from the map
 	 * @param messageId
 	 */
 	public abstract void acknowledgePacket(String messageId);
+
 	/**
-	 * delete from the map the entry with this key
-	 * @param timeBucket
-	 */
-	public abstract Map<Long, WritablePacket> removeFromBacklog(long timeBucket);
-	/**
-	 * calculate the bucket from timestamp, and push the packet into it
+	 * push the packet into the map
 	 * @param messageId
 	 * @param packet
 	 */

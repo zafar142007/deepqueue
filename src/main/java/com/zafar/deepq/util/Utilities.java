@@ -61,7 +61,4 @@ public class Utilities {
 		long id=u.getLeastSignificantBits();
 		return System.currentTimeMillis()+Constants.ID_SEPARATOR+Long.toString(id);
 	}
-	public static final long getTimeStampFromId(String messageId){
-		return Long.parseLong(messageId.substring(0,messageId.indexOf(Constants.ID_SEPARATOR)));
-	}
 }
