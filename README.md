@@ -16,4 +16,4 @@ The message broker uses simple HTTP endpoints for its functions. There are 3 fun
   This will write to the queue in a FIFO fashion the payload and return a JSON with a UUID, the payload and a status.    
 3. Accept Acknowledgement:  
   _http://{HOST}:{PORT}/deepqueue/ack/{uuid}_  
-  This will expel the relavant packet from the system if the acknowledgement is found to be within the expiry time limit of the packet's read time, otherwise this packet will be reinitiated to the head of the queue after its expiry.
+  This will expel the relavant packet from the system if the acknowledgement is found to be within the expiry time limit of the packet's read time, otherwise this packet will be reinitiated to the head of the queue after its expiry. This will always return a 200 OK.
