@@ -163,10 +163,17 @@ public class DeepQImpl extends DeepQ{
 			logger.error("Could not put back {}",e);
 		}
 	}
+	/**
+	 * Getter method
+	 * @return the map with uuid-timestamp mappings
+	 */
 	public ConcurrentHashMap<String, Long> getReadTimestamps() {
 		return readTimestamps;
 	}
-
+	/**
+	 * Setter method
+	 * @param readTimestamps the map to set
+	 */
 	public void setReadTimestamps(ConcurrentHashMap<String, Long> readTimestamps) {
 		this.readTimestamps = readTimestamps;
 	}

@@ -2,7 +2,11 @@ package com.zafar.deepq.util;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-
+/**
+ * A thread factory for the executors
+ * @author zafar
+ *
+ */
 public class DeepQueueThreadFactory implements ThreadFactory {
 
 

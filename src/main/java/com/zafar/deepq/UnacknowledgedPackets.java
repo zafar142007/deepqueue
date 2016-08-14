@@ -15,14 +15,13 @@ public abstract class UnacknowledgedPackets {
 
 	/**
 	 * delete the message from the map
-	 * @param messageId
+	 * @param messageId the message id you want to delete
 	 */
 	public abstract void acknowledgePacket(String messageId);
 
 	/**
 	 * push the packet into the map
-	 * @param messageId
-	 * @param packet
+	 * @param packet the packet you want to set
 	 */
 	public abstract void addToUnacknowldged(WritablePacket packet);
 }

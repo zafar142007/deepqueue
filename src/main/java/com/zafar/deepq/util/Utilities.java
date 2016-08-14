@@ -15,7 +15,11 @@ import com.zafar.deepq.ImmutableTime;
 import com.zafar.deepq.domain.Response;
 import com.zafar.deepq.domain.WritablePacket;
 
-
+/**
+ * often used methods
+ * @author zafar
+ *
+ */
 @Component
 public class Utilities {
 	
@@ -32,8 +36,8 @@ public class Utilities {
 	}
 	
 	/**
-	 * Return with a prefilled DeferredResult
-	 * @return
+	 * factory method
+	 * @return an empty result with error scenarios prefilled with timeout
 	 */
 	public DeferredResult<Response<WritablePacket>> emptyResponseWithTimeout(){
 		DeferredResult<Response<WritablePacket>> result=
@@ -49,6 +53,10 @@ public class Utilities {
 		});
 		return result;
 	}
+	/**
+	 * An empty response factory method
+	 * @return an empty result without timeout
+	 */
 	public DeferredResult<Response<WritablePacket>> emptyResponse(){
 		DeferredResult<Response<WritablePacket>> result=new DeferredResult<Response<WritablePacket>>();
 		result.onCompletion(() -> {

@@ -1,5 +1,9 @@
 package com.zafar.deepq.util;
-
+/**
+ * constants used
+ * @author zafar
+ *
+ */
 public class Constants {
 	public final static String ID_SEPARATOR="_";
 	public static final String STATUS_OK = "OK";
