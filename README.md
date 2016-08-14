@@ -5,7 +5,9 @@ DeepQueue is a broker written in __[RX Java](http://reactivex.io/ RX Java)__ tha
 
 When a consumer gets a set of messages, it must notify DeepQueue that it has processed each message (individually). This deletes that message from the DeepQueue database. If a message is received by a consumer, but NOT marked as processed within a configurable amount of time, the message then becomes available to any consumer requesting again.  
 
-This is a web application. For building it, use maven (run "mvn clean install javadoc:javadoc"), and deploy the resultant war file in a J2EE container with __Servlets 3.1__ support such as Tomcat 8. If deployed on containers adhering to lower versions than the Servlet 3.1 specification, the benefits of a reactive architecture with RX Java will not be completely exploited.   
+#####This web application is deployed on Heroku. If you want to try it out, try the following end points as detailed below: https://deepq.herokuapp.com/read, https://deepq.herokuapp.com/ack/<msg_id>, https://deepq.herokuapp.com/write  
+
+For building it, use maven (run "mvn clean install javadoc:javadoc"), and deploy the resultant war file in a J2EE container with __Servlets 3.1__ support such as Tomcat 8. If deployed on containers adhering to lower versions than the Servlet 3.1 specification, the benefits of a reactive architecture with RX Java will not be completely exploited.   
 
 The message broker uses simple HTTP endpoints for its functions. There are 3 functions that it can serve:  
 
