@@ -32,13 +32,14 @@ public class UnacknowledgedPacketsImpl extends UnacknowledgedPackets{
 	@Override
 	public void acknowledgePacket(String messageId) {
 		logger.debug("deleting from backlog {}",messageId);
-		long timestamp=Utilities.getTimeStampFromId(messageId);	
+		long timestamp=queue.getReadTimestamps().get(messageId);	//get read timestamp
 		long bucket=calculateBucket(timestamp);
 		lock.writeLock().lock();
 		Map<Long, WritablePacket> packets=unacknowledgedPackets.get(bucket);
 		if(packets!=null){
 			packets.remove(timestamp);
-			logger.debug("removed packet from backlog {}",timestamp);
+			queue.getReadTimestamps().remove(timestamp);
+			logger.debug("removed packet from backlog and uuid-timestamp map {}",timestamp);
 		}
 		lock.writeLock().unlock();
 	}
@@ -49,7 +50,7 @@ public class UnacknowledgedPacketsImpl extends UnacknowledgedPackets{
 	@Override
 	public void addToUnacknowldged(WritablePacket packet) {
 		logger.debug("adding to backlog packet {}",packet);
-		long timestamp=Utilities.getTimeStampFromId(packet.getUuid());
+		long timestamp=queue.getReadTimestamps().get(packet.getUuid());//get read timestamp
 		long bucket=calculateBucket(timestamp);
 		lock.writeLock().lock();
 		Map<Long, WritablePacket> packets=unacknowledgedPackets.get(bucket);

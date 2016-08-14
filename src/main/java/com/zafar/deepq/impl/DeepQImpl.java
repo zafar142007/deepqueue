@@ -2,6 +2,7 @@ package com.zafar.deepq.impl;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -22,6 +23,19 @@ import com.zafar.executors.ExecutorUtil;
 @Service
 public class DeepQImpl extends DeepQ{
 	private static Logger logger = LoggerFactory.getLogger(DeepQImpl.class);
+	
+	/**
+	 * This is a lookup table for mappping UUId with read timestamps
+	 */
+	private ConcurrentHashMap<String, Long> readTimestamps=new ConcurrentHashMap<String, Long>();
+
+	public ConcurrentHashMap<String, Long> getReadTimestamps() {
+		return readTimestamps;
+	}
+
+	public void setReadTimestamps(ConcurrentHashMap<String, Long> readTimestamps) {
+		this.readTimestamps = readTimestamps;
+	}
 
 	@Autowired
 	protected UnacknowledgedPackets backlog=new UnacknowledgedPacketsImpl();
@@ -46,7 +60,8 @@ public class DeepQImpl extends DeepQ{
 					logger.debug("reading the queue");
 					WritablePacket payload=packet.get();
 					if(payload!=null){
-						payload.setUuid(Utilities.generateUUID());//send back the read timestamp
+						String uuid=Utilities.generateUUID();//generate the read timestamp  
+						readTimestamps.put(payload.getUuid(), Utilities.getTimeStampFromId(uuid));
 						backlog.addToUnacknowldged(payload);
 						logger.debug("setting the result");
 						result.setResult(payload);
@@ -109,6 +124,8 @@ public class DeepQImpl extends DeepQ{
 				(packet) -> {					
 					WritablePacket payload=packet.get();
 					if(payload!=null){
+						String uuid=Utilities.generateUUID();//generate the read timestamp  
+						readTimestamps.put(payload.getUuid(), Utilities.getTimeStampFromId(uuid));
 						backlog.addToUnacknowldged(payload);
 						result.setResult(payload);
 					}
@@ -122,12 +139,18 @@ public class DeepQImpl extends DeepQ{
 	}
 
 	public void processAck(String uuid) {
-		long lapse=System.currentTimeMillis()-Utilities.getTimeStampFromId(uuid);
-		logger.debug("time difference {}",lapse);
-		if((lapse)<=(expiryTime.getTimeInMs()))
-			backlog.acknowledgePacket(uuid);
-		else
-			logger.debug("late ack");
+		Long time=readTimestamps.get(uuid);
+		if(time==null){
+			logger.debug("There is no record of any read happening for this packet {}",uuid);
+			return;
+		}else{
+			long lapse=System.currentTimeMillis()-time;
+			logger.debug("time difference {}",lapse);
+			if((lapse)<=(expiryTime.getTimeInMs()))
+				backlog.acknowledgePacket(uuid);
+			else
+				logger.debug("late ack");
+		}
 	}
 
 	@Override
@@ -137,7 +160,7 @@ public class DeepQImpl extends DeepQ{
 		logger.debug("Pushing unacknowledged packets to head");
 		for(WritablePacket packet:sortedMap.values())
 			try {
-				packet.setUuid(Utilities.generateUUID());
+				readTimestamps.remove(packet.getUuid());
 				queue.putFirst(packet);
 			} catch (InterruptedException e) {
 				logger.debug("Exception",e);
