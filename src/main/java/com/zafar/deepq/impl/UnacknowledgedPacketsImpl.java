@@ -1,7 +1,5 @@
 package com.zafar.deepq.impl;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -14,7 +12,6 @@ import rx.Observable;
 
 import com.zafar.deepq.UnacknowledgedPackets;
 import com.zafar.deepq.WritablePacket;
-import com.zafar.deepq.util.Utilities;
 import com.zafar.executors.ExecutorUtil;
 
 @Service
@@ -29,46 +26,36 @@ public class UnacknowledgedPacketsImpl extends UnacknowledgedPackets{
 	private ExecutorUtil executorUtil;
 
 	private ReentrantReadWriteLock lock= new ReentrantReadWriteLock();
+	
 	@Override
 	public void acknowledgePacket(String messageId) {
 		logger.debug("deleting from backlog {}",messageId);
 		long timestamp=queue.getReadTimestamps().get(messageId);	//get read timestamp
-		long bucket=calculateBucket(timestamp);
 		lock.writeLock().lock();
-		Map<Long, WritablePacket> packets=unacknowledgedPackets.get(bucket);
-		if(packets!=null){
-			packets.remove(timestamp);
-			queue.getReadTimestamps().remove(timestamp);
-			logger.debug("removed packet from backlog and uuid-timestamp map {}",timestamp);
-		}
+		unacknowledgedPackets.remove(messageId);
+		queue.getReadTimestamps().remove(timestamp);
+		logger.debug("removed packet from backlog {} wth read timestamp {}",messageId, timestamp);
 		lock.writeLock().unlock();
 	}
 
-	public static long calculateBucket(long timestamp){
-		return (timestamp/1000)*1000;
-	}
 	@Override
 	public void addToUnacknowldged(WritablePacket packet) {
 		logger.debug("adding to backlog packet {}",packet);
-		long timestamp=queue.getReadTimestamps().get(packet.getUuid());//get read timestamp
-		long bucket=calculateBucket(timestamp);
 		lock.writeLock().lock();
-		Map<Long, WritablePacket> packets=unacknowledgedPackets.get(bucket);
-		if(packets==null){
-			logger.debug("creating bucket {}",bucket);
-			ConcurrentHashMap<Long,WritablePacket> map=new ConcurrentHashMap<Long, WritablePacket>();
-			map.put(timestamp, packet);			
-			unacknowledgedPackets.put(bucket, map);
-			Observable<Long> cleanup=Observable.just(bucket).subscribeOn(executorUtil.getCleanupExecutors());
+		WritablePacket p=unacknowledgedPackets.get(packet.getUuid());
+		if(p==null){
+			unacknowledgedPackets.put(packet.getUuid(), packet);
+			Observable<WritablePacket> cleanup=Observable.just(packet).subscribeOn(executorUtil.getCleanupExecutors());
 			cleanup.delay(queue.expiryTime.getTimeInMs(), TimeUnit.MILLISECONDS).subscribe(
 					(element) -> {
-						logger.debug("removing expired bucket {}",element);
-						Map<Long, WritablePacket> m=removeFromBacklog(element);
+						logger.debug("Time is up! Removing expired packet {}",element);
+						WritablePacket m=unacknowledgedPackets.remove(element.getUuid());
 						if(m!=null){
 							lock.writeLock().lock();
 							queue.pushToHead(m);
 							lock.writeLock().unlock();
-						}
+						}else
+							logger.debug("not found {}",element);
 					}, 
 					(exception) -> {
 						logger.error("Some error:{}",exception);						
@@ -76,17 +63,10 @@ public class UnacknowledgedPacketsImpl extends UnacknowledgedPackets{
 			);			
 		}
 		else
-			packets.put(timestamp, packet);
+			logger.error("{} is already present!",packet);
 		lock.writeLock().unlock();
 	}
 
-	@Override
-	public Map<Long, WritablePacket> removeFromBacklog(long timeBucket){
-		Map<Long, WritablePacket> m =unacknowledgedPackets.remove(timeBucket);
-		if(m!=null)
-			logger.debug("removed {}",m);	
-		return m;
-	}
-
+	
 	
 }

@@ -1,7 +1,5 @@
 package com.zafar.deepq.impl;
 
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -29,14 +27,6 @@ public class DeepQImpl extends DeepQ{
 	 */
 	private ConcurrentHashMap<String, Long> readTimestamps=new ConcurrentHashMap<String, Long>();
 
-	public ConcurrentHashMap<String, Long> getReadTimestamps() {
-		return readTimestamps;
-	}
-
-	public void setReadTimestamps(ConcurrentHashMap<String, Long> readTimestamps) {
-		this.readTimestamps = readTimestamps;
-	}
-
 	@Autowired
 	protected UnacknowledgedPackets backlog=new UnacknowledgedPacketsImpl();
 
@@ -60,8 +50,8 @@ public class DeepQImpl extends DeepQ{
 					logger.debug("reading the queue");
 					WritablePacket payload=packet.get();
 					if(payload!=null){
-						String uuid=Utilities.generateUUID();//generate the read timestamp  
-						readTimestamps.put(payload.getUuid(), Utilities.getTimeStampFromId(uuid));
+						//generate the read timestamp  
+						readTimestamps.put(payload.getUuid(), System.currentTimeMillis());
 						backlog.addToUnacknowldged(payload);
 						logger.debug("setting the result");
 						result.setResult(payload);
@@ -124,8 +114,7 @@ public class DeepQImpl extends DeepQ{
 				(packet) -> {					
 					WritablePacket payload=packet.get();
 					if(payload!=null){
-						String uuid=Utilities.generateUUID();//generate the read timestamp  
-						readTimestamps.put(payload.getUuid(), Utilities.getTimeStampFromId(uuid));
+						readTimestamps.put(payload.getUuid(), System.currentTimeMillis());
 						backlog.addToUnacknowldged(payload);
 						result.setResult(payload);
 					}
@@ -154,17 +143,20 @@ public class DeepQImpl extends DeepQ{
 	}
 
 	@Override
-	public void pushToHead(Map<Long, WritablePacket> bucket) {
-		TreeMap<Long, WritablePacket> sortedMap=new TreeMap<Long,WritablePacket>();//ascending order of timeouts	
-		sortedMap.putAll(bucket);
-		logger.debug("Pushing unacknowledged packets to head");
-		for(WritablePacket packet:sortedMap.values())
-			try {
-				readTimestamps.remove(packet.getUuid());
-				queue.putFirst(packet);
-			} catch (InterruptedException e) {
-				logger.debug("Exception",e);
-			}
+	public void pushToHead(WritablePacket packet) {
+		logger.debug("Pushing unacknowledged packet {} to head",packet);
+		readTimestamps.remove(packet.getUuid());
+		try {
+			queue.putFirst(packet);
+		} catch (InterruptedException e) {
+			logger.error("Could not put back {}",e);
+		}
+	}
+	public ConcurrentHashMap<String, Long> getReadTimestamps() {
+		return readTimestamps;
 	}
 
+	public void setReadTimestamps(ConcurrentHashMap<String, Long> readTimestamps) {
+		this.readTimestamps = readTimestamps;
+	}
 }
