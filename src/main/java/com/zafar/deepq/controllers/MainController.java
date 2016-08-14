@@ -8,12 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.zafar.deepq.DeepQ;
+import com.zafar.deepq.domain.QRequest;
 import com.zafar.deepq.domain.Response;
 import com.zafar.deepq.domain.WritablePacket;
 
@@ -38,10 +40,10 @@ public class MainController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "/write/{payload}", method = RequestMethod.GET)
-	public DeferredResult<Response<WritablePacket>> write(ModelMap model, @PathVariable String payload){
+	@RequestMapping(value = "/write", method = RequestMethod.POST)
+	public DeferredResult<Response<WritablePacket>> write(ModelMap model,@RequestBody QRequest payload){
 		logger.debug("Writing payload:{}",payload);
-		return queue.write(payload);
+		return queue.write(payload.getData());
 	}
 	
 	@RequestMapping(value = "/ack/{uuid}", method = RequestMethod.GET)

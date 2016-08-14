@@ -3,6 +3,8 @@ package com.zafar.deepq.impl;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,14 +75,18 @@ public class DeepQImpl extends DeepQ{
 			(argument) ->  {
 				String uuid=Utilities.generateUUID();
 				WritablePacket packet= new WritablePacket(argument, uuid);
+				Boolean status=false;
 				try {
 					logger.debug("Writing the packet {}",packet);
-					queue.put(packet);
+					status=queue.offer(packet);
 				} catch (Exception e) {
 					logger.error("Oops:{}",e);
 					throw new RuntimeException(e); // this will be caught later in the subscriber
 				}
-				return Observable.just(packet);
+				if(status)
+					return Observable.just(packet);
+				else
+					return Observable.just(new WritablePacket());
 			}
 		);
 		
@@ -89,10 +95,14 @@ public class DeepQImpl extends DeepQ{
 		response.subscribe(
 			(output) -> {
 				logger.debug("got result {}", output);
-				result.setResult(new Response<WritablePacket>(output));
+				if(!StringUtils.isEmpty(output.getUuid())){
+					output.setPayload("");//We will not return the payload as it can be big
+					result.setResult(new Response<WritablePacket>(output,Constants.STATUS_OK));
+				}else
+					result.setResult(new Response<WritablePacket>(null,Constants.STATUS_ERROR));	
 			},
 			(exception) -> {
-				result.setErrorResult(new Response<WritablePacket>(new WritablePacket("",""),Constants.STATUS_ERROR));
+				result.setErrorResult(new Response<WritablePacket>(null,Constants.STATUS_ERROR));
 				logger.error("Oops:{}",exception);					
 			}
 		);
