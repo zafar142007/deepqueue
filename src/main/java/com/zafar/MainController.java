@@ -1,5 +1,7 @@
 package com.zafar;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,36 +11,35 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.async.DeferredResult;
 
+import com.zafar.deepq.DeepQ;
 import com.zafar.deepq.WritablePacket;
-import com.zafar.deepq.impl.DeepQImpl;
 
 @Controller
 public class MainController {
 
+	private final static Logger logger=LoggerFactory.getLogger(MainController.class);
+	
 	@Autowired
-	private DeepQImpl queue;
+	private DeepQ queue;
 	
 	@ResponseBody
 	@RequestMapping(value = "/read", method = RequestMethod.GET)
-	public WritablePacket read(ModelMap model) {
+	public DeferredResult<WritablePacket> read(ModelMap model) {
 		return queue.read();
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/readWithBlocking", method = RequestMethod.GET)
-	public WritablePacket readWithBlocking(ModelMap model){
-		try {
-			return queue.readWithBlocking();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return null;
+	public DeferredResult<WritablePacket> readWithBlocking(ModelMap model){
+		return queue.readWithBlocking();
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/write/{payload}", method = RequestMethod.GET)
-	public String write(ModelMap model, @PathVariable String payload){
+	public DeferredResult<WritablePacket> write(ModelMap model, @PathVariable String payload){
+		logger.debug("Writing payload:{}",payload);
 		return queue.write(payload);
 	}
 	
