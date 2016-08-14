@@ -4,7 +4,7 @@
 	<groupId>com.zafar</groupId>
 	<artifactId>deepqueue</artifactId>
 	<packaging>war</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0</version>
 	<name>deepqueue</name>
 	<properties>
 		<spring.version>4.1.1.RELEASE</spring.version>
