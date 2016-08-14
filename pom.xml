@@ -102,7 +102,7 @@
 				<configuration>
 					<show>private</show>
 					<nohelp>true</nohelp>
-					<destDir>../../../apidocs</destDir>
+				<!--<destDir>../../../apidocs</destDir>-->
 				</configuration>
 				
 			</plugin>
